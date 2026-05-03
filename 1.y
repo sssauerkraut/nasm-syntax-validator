@@ -52,52 +52,35 @@ instruction:
 /* ============ ADC - ВСЕ ВАРИАНТЫ ============ */
 
 adc_instr:
-    /* ADC mem, reg8 */
-    ADC mem_op COMMA reg8_op
-    /* ADC reg8, reg8 */
+    /* reg32, reg32 */
+    ADC reg32_op COMMA reg32_op
+    /* reg32, imm (константа) */
+    | ADC reg32_op COMMA imm_op
+    /* reg8, reg8 */
     | ADC reg8_op COMMA reg8_op
-    /* ADC mem, reg16 */
-    | ADC mem_op COMMA reg16_op
-    /* ADC reg16, reg16 */
+    /* reg8, imm */
+    | ADC reg8_op COMMA imm_op
+    /* reg16, reg16 */
     | ADC reg16_op COMMA reg16_op
-    /* ADC mem, reg32 */
-    | ADC mem_op COMMA reg32_op
-    /* ADC reg32, reg32 */
-    | ADC reg32_op COMMA reg32_op
-    /* ADC reg8, mem */
-    | ADC reg8_op COMMA mem_op
-    /* ADC reg8, reg8 (уже есть выше) */
-    /* ADC reg16, mem */
-    | ADC reg16_op COMMA mem_op
-    /* ADC reg16, reg16 (уже есть) */
-    /* ADC reg32, mem */
+    /* reg16, imm */
+    | ADC reg16_op COMMA imm_op
+    /* reg64, reg64 (если нужно) */
+    | ADC reg64_op COMMA reg64_op
+    /* reg64, imm */
+    | ADC reg64_op COMMA imm_op
+    /* reg32, mem */
     | ADC reg32_op COMMA mem_op
-    /* ADC rm8, imm - регистр или память с константой */
-    | ADC rm8_op COMMA imm_op
-    /* ADC rm16, imm */
-    | ADC rm16_op COMMA imm_op
-    /* ADC rm32, imm */
-    | ADC rm32_op COMMA imm_op
-    /* ADC reg_al, imm - специальный случай AL */
+    /* mem, reg32 */
+    | ADC mem_op COMMA reg32_op
+    /* mem, imm */
+    | ADC mem_op COMMA imm_op
+    /* reg_al, imm */
     | ADC reg_al_op COMMA imm_op
-    /* ADC reg_ax, imm */
+    /* reg_ax, imm */
     | ADC reg_ax_op COMMA imm_op
-    /* ADC reg_eax, imm */
+    /* reg_eax, imm */
     | ADC reg_eax_op COMMA imm_op
-    /* ADC rm8, sbyte - знаковая константа */
-    | ADC rm8_op COMMA sbyte_op
-    /* ADC rm16, sbyte */
-    | ADC rm16_op COMMA sbyte_op
-    /* ADC rm32, sbyte */
-    | ADC rm32_op COMMA sbyte_op
-    /* ADC mem, imm8 */
-    | ADC mem_op COMMA imm8_op
-    /* ADC mem, imm16 */
-    | ADC mem_op COMMA imm16_op
-    /* ADC mem, imm32 */
-    | ADC mem_op COMMA imm32_op
     ;
-
 /* ============ ОПЕРАНДЫ ============ */
 
 /* Регистр 8-bit */
