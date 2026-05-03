@@ -15,15 +15,20 @@
 mov                  { return MOV; }
 add                  { return ADD; }
 inc                  { return INC; }
-adc                  { return ADC; }    /* ДОБАВИТЬ */
+adc                  { return ADC; }
+sub                  { return SUB; }
+and                  { return AND; }
+or                   { return OR; }
+xor                  { return XOR; }
+cmp                  { return CMP; }
+sbb                  { return SBB; }
+
 
 al|ah|bl|bh|cl|ch|dl|dh  { yylval.str = strdup(yytext); return REG8; }
 
 ax|bx|cx|dx|si|di|sp|bp  { yylval.str = strdup(yytext); return REG16; }
 
 eax|ebx|ecx|edx|esi|edi|esp|ebp  { yylval.str = strdup(yytext); return REG32; }
-
-rax|rbx|rcx|rdx|rsi|rdi|rsp|rbp  { yylval.str = strdup(yytext); return REG64; }
 
 0[xX][0-9A-Fa-f]+    { yylval.num = strtol(yytext+2, NULL, 16); return NUMBER; }
 [0-9]+[hH]           { char *end; yylval.num = strtol(yytext, &end, 16); return NUMBER; }
@@ -34,7 +39,6 @@ rax|rbx|rcx|rdx|rsi|rdi|rsp|rbp  { yylval.str = strdup(yytext); return REG64; }
 byte|BYTE            { return BYTE_PTR; }
 word|WORD            { return WORD_PTR; }
 dword|DWORD          { return DWORD_PTR; }
-qword|QWORD          { return QWORD_PTR; }
 ptr|PTR              { return PTR; }
 
 ","                  { return COMMA; }
