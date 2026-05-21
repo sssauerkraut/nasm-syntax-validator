@@ -193,17 +193,17 @@ shift_op:
 
 shift_instr:
     shift_op rm8_op COMMA reg8_op {
-        if (strcasecmp($<str>3, "cl") != 0)
+        if (strcasecmp($<str>4, "cl") != 0)
             yyerror("shift count must be CL or immediate");
     }
   | shift_op rm8_op COMMA imm_op { }
   | shift_op rm16_op COMMA reg8_op {
-        if (strcasecmp($<str>3, "cl") != 0)
+        if (strcasecmp($<str>4, "cl") != 0)
             yyerror("shift count must be CL or immediate");
     }
   | shift_op rm16_op COMMA imm_op { }
   | shift_op rm32_op COMMA reg8_op {
-        if (strcasecmp($<str>3, "cl") != 0)
+        if (strcasecmp($<str>4, "cl") != 0)
             yyerror("shift count must be CL or immediate");
     }
   | shift_op rm32_op COMMA imm_op { }
