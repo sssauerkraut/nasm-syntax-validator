@@ -14,7 +14,9 @@ int yylex(void);
     char *str;
 }
 
-%token MOV ADD INC ADC SUB AND OR XOR CMP SBB NEG NOT MUL IDIV DIV SHL SHR SAR SAL ROL ROR RCL RCR BFS BSR BTC BTR BTS CMPXCHG CMPXCHG486 XADD POP PUSH
+%token MOV ADD INC ADC SUB AND OR XOR CMP SBB NEG NOT MUL IDIV DIV
+%token SHL SHR SAR SAL ROL ROR RCL RCR
+%token BFS BSR BTC BTR BTS CMPXCHG CMPXCHG486 XADD POP PUSH
 
 /* Инструкции без операндов (Zero Operand) */
 %token ZOP_AAA ZOP_AAS ZOP_DAA ZOP_DAS
@@ -35,12 +37,12 @@ int yylex(void);
 %token ZOP_UD2 ZOP_ICEBP ZOP_INT3 ZOP_INTO ZOP_SALC
 %token ZOP_RDTSCP ZOP_RSM ZOP_SMINT ZOP_RDM
 
-
 %token <str> REG8 REG16 REG32 SREG
+%type <str> reg8_op reg16_op reg32_op sreg_op
 
 %token <num> NUMBER SBYTE
 
-%token BYTE_PTR WORD_PTR DWORD_PTR PTR
+%token BYTE WORD DWORD PTR
 
 %token COMMA LBRACK RBRACK PLUS MINUS
 %token <str> ID
@@ -119,43 +121,35 @@ zero_operand_instr:
     | ZOP_INT3 { printf(" INT3"); }
     | ZOP_INTO { printf(" INTO"); }
     | ZOP_SALC { printf(" SALC"); }
-    ;    
+    ;
 
 /* ============ МНОЖЕСТВА ВТОРЫХ ОПЕРАНДОВ АРИФМЕТИЧЕСКИЕ============ */
 arith_src_for_reg8:
-    reg8_op
-    | mem_op
-    | imm8_op
-    ;
+    reg8_op  { }
+  | mem_op   { }
+  | imm_op  { }
+  ;
 
 arith_src_for_reg16:
-    reg16_op
-    | mem_op
-    | imm16_op
-    | imm8_op
-    | sbyte8_op
-    ;
+    reg16_op  { }
+  | mem_op    { }
+  | imm_op  { }
+  ;
 
 arith_src_for_reg32:
-    reg32_op
-    | mem_op
-    | imm32_op
-    | imm8_op
-    | sbyte8_op
-    ;
+    reg32_op  { }
+  | mem_op    { }
+  | imm_op  { }
+  ;
 
 arith_src_for_mem:
-    reg8_op
-    | reg16_op
-    | reg32_op
-    | imm8_op
-    | imm16_op
-    | imm32_op
-    | sbyte8_op
-    ;
+    reg8_op   { }
+  | reg16_op  { }
+  | reg32_op  { }
+  | imm_op   { }
+  ;
 
 /* ============ АРИФМЕТИЧЕСКИЕ ИНСТРУКЦИИ ============ */
-
 arith_op:
     ADD | ADC | SUB | SBB | CMP | AND | OR | XOR
     ;
@@ -167,66 +161,53 @@ arith_instr:
     | arith_op mem_op   COMMA arith_src_for_mem
     ;
 
-
 /* ============ ДРУГИЕ ИНСТРУКЦИИ ============ */
+negnot_op:
+    NEG | NOT | MUL | IDIV | DIV
+    ;
 
-
-negnot_op:		
-    NEG | NOT | MUL | IDIV | DIV		
-    ;		
-		
-negnot_instr:		
-    negnot_op rm8_op		
-    | negnot_op rm16_op		
-    | negnot_op rm32_op		
+negnot_instr:
+    negnot_op rm8_op
+  | negnot_op rm16_op
+  | negnot_op rm32_op
+  ;
 
 mov_instr:
     MOV rm8_op  COMMA rm8_op
-  | MOV rm8_op  COMMA imm8_op 
+  | MOV rm8_op  COMMA imm_op
   | MOV rm16_op COMMA rm16_op
-  | MOV rm16_op COMMA imm16_op 
+  | MOV rm16_op COMMA imm_op
   | MOV rm32_op COMMA rm32_op
-  | MOV rm32_op COMMA imm32_op 
+  | MOV rm32_op COMMA imm_op
   ;
 
 inc_instr:
     INC reg8_op
-    | INC reg16_op
-    | INC reg32_op
-    ;
-
+  | INC reg16_op
+  | INC reg32_op
+  ;
 
 shift_op:
     SHL | SHR | SAR | SAL | ROL | ROR | RCL | RCR
     ;
 
-shift_instr: // вроде как значение 1 тут можно не проверять, так как может быть любое потенциально 
+shift_instr:
     shift_op rm8_op COMMA reg8_op {
-        if (strcasecmp($3, "cl") != 0)
+        if (strcasecmp($<str>3, "cl") != 0)
             yyerror("shift count must be CL or immediate");
-        printf(" cl");
     }
-  | shift_op rm8_op COMMA imm8_op {
-        
-    }
+  | shift_op rm8_op COMMA imm_op { }
   | shift_op rm16_op COMMA reg8_op {
-        if (strcasecmp($3, "cl") != 0)
+        if (strcasecmp($<str>3, "cl") != 0)
             yyerror("shift count must be CL or immediate");
-        printf(" cl");
     }
-  | shift_op rm16_op COMMA imm8_op {
-        
-    }
+  | shift_op rm16_op COMMA imm_op { }
   | shift_op rm32_op COMMA reg8_op {
-        if (strcasecmp($3, "cl") != 0)
+        if (strcasecmp($<str>3, "cl") != 0)
             yyerror("shift count must be CL or immediate");
-        printf(" cl");
     }
-  | shift_op rm32_op COMMA imm8_op {
-
-    }
+  | shift_op rm32_op COMMA imm_op { }
   ;
-	
 
 bsf_op:
     BFS | BSR
@@ -234,8 +215,8 @@ bsf_op:
 
 bsf_instr:
     bsf_op reg16_op COMMA rm16_op
-    | bsf_op reg32_op COMMA rm32_op
-    ;
+  | bsf_op reg32_op COMMA rm32_op
+  ;
 
 btc_op:
     BTC | BTR | BTS
@@ -243,15 +224,14 @@ btc_op:
 
 btc_instr:
     btc_op rm16_op COMMA reg16_op
-  | btc_op rm32_op COMMA reg32_op 
-  | btc_op rm16_op COMMA imm8_op   
-  | btc_op rm32_op COMMA imm8_op    
+  | btc_op rm32_op COMMA reg32_op
+  | btc_op rm16_op COMMA imm_op
+  | btc_op rm32_op COMMA imm_op
   ;
 
 cmpxchg_op:
-    CMPXCHG
-  | CMPXCHG486
-  ;
+    CMPXCHG | CMPXCHG486
+    ;
 
 cmpxchg_instr:
     cmpxchg_op rm8_op  COMMA reg8_op
@@ -261,14 +241,13 @@ cmpxchg_instr:
 
 xadd_op:
     XADD
-;
+    ;
+
 xadd_instr:
     xadd_op rm8_op  COMMA reg8_op
   | xadd_op rm16_op COMMA reg16_op
   | xadd_op rm32_op COMMA reg32_op
   ;
-
-	
 
 pop_instr:
     POP rm16_op
@@ -280,42 +259,40 @@ push_instr:
     PUSH rm16_op
   | PUSH rm32_op
   | PUSH sreg_op
-  | PUSH imm8_op
-  | PUSH imm16_op
-  | PUSH imm32_op
+  | PUSH imm_op
   ;
+
 /* ============ ОПЕРАНДЫ (ОПРЕДЕЛЕНИЯ) ============ */
+reg8_op:  REG8  { $$ = $1; printf("    reg8: %s", $1); };
+reg16_op: REG16 { $$ = $1; printf("    reg16: %s", $1); };
+reg32_op: REG32 { $$ = $1; printf("    reg32: %s", $1); };
+sreg_op:  SREG  { $$ = $1; printf(" %s", $1); };
 
-reg8_op:   REG8  { printf("    reg8: %s", $1); } ;
-reg16_op:  REG16 { printf("    reg16: %s", $1); } ;
-reg32_op:  REG32 { printf("    reg32: %s", $1); } ;
+mem8_op:
+    BYTE PTR mem_base   { printf("    byte ptr"); }
+  | BYTE mem_base        { printf("    byte"); }
+  ;
 
-sreg_op:   SREG { printf(" %s", $1); };
+mem16_op:
+    WORD PTR mem_base   { printf("    word ptr"); }
+  | WORD mem_base        { printf("    word"); }
+  ;
 
+mem32_op:
+    DWORD PTR mem_base  { printf("    dword ptr"); }
+  | DWORD mem_base       { printf("    dword"); }
+  ;
 
-mem8_op
-    : BYTE PTR mem_base   { printf("    byte ptr"); }
-    | BYTE mem_base        { printf("    byte"); }   
-    ;
+mem_op:
+    mem8_op  { }
+  | mem16_op { }
+  | mem32_op { }
+  | mem_base { }
+  ;
 
-mem16_op
-    : WORD PTR mem_base   { printf("    word ptr"); }
-    | WORD mem_base        { printf("    word"); }
-    ;
-
-mem32_op
-    : DWORD PTR mem_base  { printf("    dword ptr"); }
-    | DWORD mem_base       { printf("    dword"); }
-    ;
-
-mem_op
-    : mem8_op | mem16_op | mem32_op
-    | mem_base             { printf("    mem"); }
-    ;
-
-rm8_op  : reg8_op | mem8_op ;
-rm16_op : reg16_op | mem16_op ;
-rm32_op : reg32_op | mem32_op ;
+rm8_op  : reg8_op  { } | mem8_op { } ;
+rm16_op : reg16_op { } | mem16_op { } ;
+rm32_op : reg32_op { } | mem32_op { } ;
 
 mem_base:
     LBRACK mem_addr RBRACK
@@ -323,24 +300,14 @@ mem_base:
 
 mem_addr:
     ID                     { printf(" [%s]", $1); }
-    | REG32                { printf(" [%s]", $1); }
-    | REG32 PLUS NUMBER    { printf(" [%s+%d]", $1, $3); }
-    | REG32 MINUS NUMBER   { printf(" [%s-%d]", $1, $3); }
-    ;
+  | REG32                { printf(" [%s]", $1); }
+  | REG32 PLUS NUMBER    { printf(" [%s+%d]", $1, $3); }
+  | REG32 MINUS NUMBER   { printf(" [%s-%d]", $1, $3); }
+  ;
 
-/* Константы */
-imm8_op:   NUMBER { if($1 < -128 || $1 > 255) yywarn("imm8 out of range"); 
-                    printf("    imm8: %d", ($1  & 0xFF)); } ;
 
-imm16_op:  NUMBER { if($1 < -32768 || $1 > 65535) yywarn("imm16 out of range"); 
-                    printf("    imm16: %d", ($1 & 0xFFFF)); } ;
+imm_op:  NUMBER { printf("    imm: %d", ($1 & 0xFFFFFF)); } ;
 
-imm32_op:  NUMBER { printf("    imm32: %d", ($1 & 0xFFFFFF)); } ;
-
-sbyte8_op: SBYTE { printf("    sbyte: %d", $1); }
-          | NUMBER { if($1 > 127 || $1 < -128) yywarn("sbyte out of range"); 
-                     printf("    sbyte: %d", ((int8_t)($1 & 0xFF))); }
-          ;
 
 %%
 
@@ -359,9 +326,9 @@ int main(int argc, char **argv) {
             return 1;
         }
         yyin = f;
-    } 
-    int result = yyparse();    
-    if (yyin != stdin)           
+    }
+    int result = yyparse();
+    if (yyin != stdin)
         fclose(yyin);
 
     printf("=== NASM Validator (x86, 32-bit) ===\n");
