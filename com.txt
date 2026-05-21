@@ -1,0 +1,202 @@
+ARPL             mem,reg16                286,PROT,NOLONG 
+ARPL             reg16,reg16              286,PROT,NOLONG 
+
+ENTER            imm,imm                  186 
+
+EQU              imm                      8086 
+EQU              imm:imm                  8086 
+
+
+FST              mem32                    8086,FPU 
+FST              fpureg                   8086,FPU 
+FST                                       8086,FPU,ND 
+
+IMUL             rm8                      8086 
+IMUL             rm16                     8086 
+IMUL             rm32                     386 
+IMUL             rm64                     X86_64,LONG 
+IMUL             reg16,mem                386 
+IMUL             reg16,reg16              386 
+IMUL             reg32,mem                386 
+IMUL             reg32,reg32              386 
+IMUL             reg16,mem,imm8           186 
+IMUL             reg16,mem,sbyteword      186,ND 
+IMUL             reg16,mem,imm16          186 
+IMUL             reg16,mem,imm            186,ND 
+IMUL             reg16,reg16,imm8         186 
+IMUL             reg16,reg16,sbyteword    186,ND 
+IMUL             reg16,reg16,imm16        186 
+IMUL             reg16,reg16,imm          186,ND 
+IMUL             reg32,mem,imm8           386 
+IMUL             reg32,mem,sbytedword     386,ND 
+IMUL             reg32,mem,imm32          386 
+IMUL             reg32,mem,imm            386,ND 
+IMUL             reg32,reg32,imm8         386 
+IMUL             reg32,reg32,sbytedword   386,ND 
+IMUL             reg32,reg32,imm32        386 
+IMUL             reg32,reg32,imm          386,ND 
+IMUL             reg16,imm8               186 
+IMUL             reg16,sbyteword          186,ND 
+IMUL             reg16,imm16              186 
+IMUL             reg16,imm                186,ND 
+IMUL             reg32,imm8               386 
+IMUL             reg32,sbytedword         386,ND 
+IMUL             reg32,imm32              386 
+IMUL             reg32,imm                386,ND 
+
+INVPCID          reg32,mem128             INVPCID,PRIV,NOLONG 
+INVPCID          reg64,mem128             INVPCID,PRIV,LONG 
+
+INVLPGA          reg_ax,reg_ecx           X86_64,AMD,NOLONG 
+INVLPGA          reg_eax,reg_ecx          X86_64,AMD 
+INVLPGA          reg_rax,reg_ecx          X86_64,LONG,AMD 
+INVLPGA                                   X86_64,AMD 
+
+
+
+JMP              imm|short                8086 
+JMP              imm                      8086,ND 
+JMP              imm                      8086,BND 
+JMP              imm|near                 8086,ND,BND 
+JMP              imm|far                  8086,ND,NOLONG 
+JMP              imm16                    8086,NOLONG,BND 
+JMP              imm16|near               8086,ND,NOLONG,BND 
+JMP              imm16|far                8086,ND,NOLONG 
+JMP              imm32                    386,NOLONG,BND 
+JMP              imm32|near               386,ND,NOLONG,BND 
+JMP              imm32|far                386,ND,NOLONG 
+JMP              imm64                    X86_64,LONG,BND 
+JMP              imm64|near               X86_64,LONG,ND,BND 
+JMP              imm:imm                  8086,NOLONG 
+JMP              imm16:imm                8086,NOLONG 
+JMP              imm:imm16                8086,NOLONG 
+JMP              imm32:imm                386,NOLONG 
+JMP              imm:imm32                386,NOLONG 
+JMP              mem|far                  8086,NOLONG 
+JMP              mem|far                  X86_64,LONG 
+JMP              mem16|far                8086 
+JMP              mem32|far                386 
+JMP              mem64|far                X86_64,LONG 
+JMP              mem|near                 8086,ND,BND 
+JMP              rm16|near                8086,NOLONG,ND,BND 
+JMP              rm32|near                386,NOLONG,ND,BND 
+JMP              rm64|near                X86_64,LONG,ND,BND 
+JMP              mem                      8086,BND 
+JMP              rm16                     8086,NOLONG,BND 
+JMP              rm32                     386,NOLONG,BND 
+JMP              rm64                     X86_64,LONG,BND 
+
+
+JMPE             imm                      IA64 
+JMPE             imm16                    IA64 
+JMPE             imm32                    IA64 
+JMPE             rm16                     IA64 
+JMPE             rm32                     IA64 
+
+LEA              reg16,mem                8086,ANYSIZE 
+LEA              reg32,mem                386,ANYSIZE 
+LEA              reg16,imm                8086,ND,ANYSIZE 
+LEA              reg32,imm                386,ND,ANYSIZE 
+
+MONITOR                                   PRESCOTT 
+MONITOR          reg_eax,reg_ecx,reg_edx  PRESCOTT,NOLONG,ND 
+MONITORX                                  AMD 
+MONITORX         reg_eax,reg_ecx,reg_edx  AMD,ND 
+MONITORX         reg_ax,reg_ecx,reg_edx   AMD,ND 
+
+MOV              mem,reg_sreg             8086,SW 
+MOV              reg16,reg_sreg           8086 
+MOV              reg32,reg_sreg           386 
+MOV              reg_sreg,mem             8086,SW 
+MOV              reg_sreg,reg16           8086,OPT,ND 
+MOV              reg_sreg,reg32           386,OPT,ND 
+MOV              reg_sreg,reg16           8086 
+MOV              reg_sreg,reg32           386 
+MOV              reg_ax,mem_offs          8086 
+MOV              reg_eax,mem_offs         386 
+MOV              mem_offs,reg_al          8086,NOHLE 
+MOV              mem_offs,reg_ax          8086,NOHLE 
+MOV              mem_offs,reg_eax         386,NOHLE 
+MOV              reg32,reg_creg           386,PRIV,NOLONG  
+MOV              reg_creg,reg32           386,PRIV,NOLONG 
+MOV              reg32,reg_dreg           386,PRIV,NOLONG 
+MOV              reg_dreg,reg32           386,PRIV,NOLONG 
+MOV              reg32,reg_treg           386,NOLONG,ND 
+MOV              reg_treg,reg32           386,NOLONG,ND 
+MOV              mem,reg8                 8086 
+MOV              reg8,reg8                8086 
+MOV              mem,reg16                8086 
+MOV              reg16,reg16              8086 
+MOV              mem,reg32                386 
+MOV              reg32,reg32              386 
+MOV              reg8,mem                 8086 
+MOV              reg8,reg8                8086 
+MOV              reg16,mem                8086 
+MOV              reg16,reg16              8086 
+MOV              reg32,mem                386 
+MOV              reg32,reg32              386 
+MOV              reg8,imm                 8086 
+MOV              reg16,imm                8086 
+MOV              reg32,imm                386 
+MOV              rm8,imm                  8086 
+MOV              rm16,imm                 8086 
+MOV              rm32,imm                 386 
+MOV              mem,imm8                 8086 
+MOV              mem,imm16                8086 
+MOV              mem,imm32                386 
+
+NOP                                       8086 
+NOP              rm16                     P6 
+NOP              rm32                     P6 
+
+MOVD             mmxreg,rm32              PENT,MMX,SD 
+MOVD             rm32,mmxreg              PENT,MMX,SD 
+
+MOVQ             mmxreg,mmxrm             PENT,MMX 
+MOVQ             mmxrm,mmxreg             PENT,MMX 
+
+
+RSDC             reg_sreg,mem80           486,CYRIX,SMM 
+
+SVDC             mem80,reg_sreg           486,CYRIX,SMM 
+
+TEST             mem,reg8                 8086 
+TEST             reg8,reg8                8086 
+TEST             mem,reg16                8086 
+TEST             reg16,reg16              8086 
+TEST             mem,reg32                386 
+TEST             reg32,reg32              386 
+TEST             reg8,mem                 8086 
+TEST             reg16,mem                8086 
+TEST             reg32,mem                386 
+TEST             reg_al,imm               8086 
+TEST             reg_ax,imm               8086 
+TEST             reg_eax,imm              386 
+TEST             rm8,imm                  8086 
+TEST             rm16,imm                 8086 
+TEST             rm32,imm                 386 
+TEST             mem,imm8                 8086 
+TEST             mem,imm16                8086 
+TEST             mem,imm32                386  
+
+
+XCHG             reg_ax,reg16             8086 
+XCHG             reg_eax,reg32na          386 
+XCHG             reg16,reg_ax             8086 
+XCHG             reg32na,reg_eax          386 
+XCHG             reg_eax,reg_eax          386,NOLONG 
+XCHG             reg8,mem                 8086,LOCK 
+XCHG             reg8,reg8                8086 
+XCHG             reg16,mem                8086,LOCK 
+XCHG             reg16,reg16              8086 
+XCHG             reg32,mem                386,LOCK 
+XCHG             reg32,reg32              386 
+XCHG             mem,reg8                 8086,LOCK 
+XCHG             reg8,reg8                8086 
+XCHG             mem,reg16                8086,LOCK 
+XCHG             reg16,reg16              8086 
+XCHG             mem,reg32                386,LOCK 
+XCHG             reg32,reg32              386 
+
+SETcc            mem                      386 
+SETcc            reg8                     386
