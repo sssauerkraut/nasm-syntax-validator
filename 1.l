@@ -85,6 +85,8 @@ ax|bx|cx|dx|si|di|sp|bp  { yylval.str = strdup(yytext); return REG16; }
 
 eax|ebx|ecx|edx|esi|edi|esp|ebp  { yylval.str = strdup(yytext); return REG32; }
 
+es|cs|ss|ds|fs|gs        { yylval.str = strdup(yytext); return SREG; }
+
 0[xX][0-9A-Fa-f]+    { yylval.num = strtol(yytext+2, NULL, 16); return NUMBER; }
 [0-9]+[hH]           { char *end; yylval.num = strtol(yytext, &end, 16); return NUMBER; }
 [0-9]+               { yylval.num = atoi(yytext); return NUMBER; }
