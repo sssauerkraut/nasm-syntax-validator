@@ -14,7 +14,7 @@ int yylex(void);
     char *str;
 }
 
-%token MOV ADD INC ADC SUB AND OR XOR CMP SBB
+%token MOV ADD INC ADC SUB AND OR XOR CMP SBB NEG NOT MUL IDIV DIV SHL SHR SAR SAL ROL ROR RCL RCR BFS BSR BTC BTR BTS CMPXCHG CMPXCHG486 XADD POP PUSH
 
 /* Инструкции без операндов (Zero Operand) */
 %token ZOP_AAA ZOP_AAS ZOP_DAA ZOP_DAS
@@ -36,7 +36,7 @@ int yylex(void);
 %token ZOP_RDTSCP ZOP_RSM ZOP_SMINT ZOP_RDM
 
 
-%token <str> REG8 REG16 REG32
+%token <str> REG8 REG16 REG32 SREG
 
 %token <num> NUMBER SBYTE
 
@@ -60,11 +60,10 @@ line:
     ;
 
 instruction:
-    mov_instr
-    | inc_instr
-    | arith_instr
-    | zero_operand_instr   
-    ;
+    mov_instr | inc_instr | arith_instr | zero_operand_instr
+  | shift_instr | negnot_instr | bsf_instr | btc_instr
+  | cmpxchg_instr | xadd_instr | pop_instr | push_instr
+  ;
 
 /* ============ ИНСТРУКЦИИ БЕЗ ОПЕРАНДОВ ============ */
 zero_operand_instr:
@@ -171,11 +170,24 @@ arith_instr:
 
 /* ============ ДРУГИЕ ИНСТРУКЦИИ ============ */
 
+
+negnot_op:		
+    NEG | NOT | MUL | IDIV | DIV		
+    ;		
+		
+negnot_instr:		
+    negnot_op rm8_op		
+    | negnot_op rm16_op		
+    | negnot_op rm32_op		
+
 mov_instr:
-    MOV reg32_op COMMA src_for_reg32
-    | MOV reg16_op COMMA src_for_reg16
-    | MOV reg8_op  COMMA src_for_reg8
-    ;
+    MOV rm8_op  COMMA rm8_op
+  | MOV rm8_op  COMMA imm8_op 
+  | MOV rm16_op COMMA rm16_op
+  | MOV rm16_op COMMA imm16_op 
+  | MOV rm32_op COMMA rm32_op
+  | MOV rm32_op COMMA imm32_op 
+  ;
 
 inc_instr:
     INC reg8_op
@@ -183,23 +195,127 @@ inc_instr:
     | INC reg32_op
     ;
 
+
+shift_op:
+    SHL | SHR | SAR | SAL | ROL | ROR | RCL | RCR
+    ;
+
+shift_instr: // вроде как значение 1 тут можно не проверять, так как может быть любое потенциально 
+    shift_op rm8_op COMMA reg8_op {
+        if (strcasecmp($3, "cl") != 0)
+            yyerror("shift count must be CL or immediate");
+        printf(" cl");
+    }
+  | shift_op rm8_op COMMA imm8_op {
+        
+    }
+  | shift_op rm16_op COMMA reg8_op {
+        if (strcasecmp($3, "cl") != 0)
+            yyerror("shift count must be CL or immediate");
+        printf(" cl");
+    }
+  | shift_op rm16_op COMMA imm8_op {
+        
+    }
+  | shift_op rm32_op COMMA reg8_op {
+        if (strcasecmp($3, "cl") != 0)
+            yyerror("shift count must be CL or immediate");
+        printf(" cl");
+    }
+  | shift_op rm32_op COMMA imm8_op {
+
+    }
+  ;
+	
+
+bsf_op:
+    BFS | BSR
+    ;
+
+bsf_instr:
+    bsf_op reg16_op COMMA rm16_op
+    | bsf_op reg32_op COMMA rm32_op
+    ;
+
+btc_op:
+    BTC | BTR | BTS
+    ;
+
+btc_instr:
+    btc_op rm16_op COMMA reg16_op
+  | btc_op rm32_op COMMA reg32_op 
+  | btc_op rm16_op COMMA imm8_op   
+  | btc_op rm32_op COMMA imm8_op    
+  ;
+
+cmpxchg_op:
+    CMPXCHG
+  | CMPXCHG486
+  ;
+
+cmpxchg_instr:
+    cmpxchg_op rm8_op  COMMA reg8_op
+  | cmpxchg_op rm16_op COMMA reg16_op
+  | cmpxchg_op rm32_op COMMA reg32_op
+  ;
+
+xadd_op:
+    XADD
+;
+xadd_instr:
+    xadd_op rm8_op  COMMA reg8_op
+  | xadd_op rm16_op COMMA reg16_op
+  | xadd_op rm32_op COMMA reg32_op
+  ;
+
+	
+
+pop_instr:
+    POP rm16_op
+  | POP rm32_op
+  | POP sreg_op
+  ;
+
+push_instr:
+    PUSH rm16_op
+  | PUSH rm32_op
+  | PUSH sreg_op
+  | PUSH imm8_op
+  | PUSH imm16_op
+  | PUSH imm32_op
+  ;
 /* ============ ОПЕРАНДЫ (ОПРЕДЕЛЕНИЯ) ============ */
 
-/* Регистры */
 reg8_op:   REG8  { printf("    reg8: %s", $1); } ;
 reg16_op:  REG16 { printf("    reg16: %s", $1); } ;
 reg32_op:  REG32 { printf("    reg32: %s", $1); } ;
 
-/* Память */
-mem_op:
-    BYTE_PTR PTR mem_base  { printf("    byte ptr"); }
-    | WORD_PTR PTR mem_base { printf("    word ptr"); }
-    | DWORD_PTR PTR mem_base { printf("    dword ptr"); }
-    | BYTE_PTR mem_base  { printf("    byte"); }
-    | WORD_PTR mem_base { printf("    word"); }
-    | DWORD_PTR mem_base { printf("    dword"); }
-    | mem_base              { printf("    mem"); }
+sreg_op:   SREG { printf(" %s", $1); };
+
+
+mem8_op
+    : BYTE PTR mem_base   { printf("    byte ptr"); }
+    | BYTE mem_base        { printf("    byte"); }   
     ;
+
+mem16_op
+    : WORD PTR mem_base   { printf("    word ptr"); }
+    | WORD mem_base        { printf("    word"); }
+    ;
+
+mem32_op
+    : DWORD PTR mem_base  { printf("    dword ptr"); }
+    | DWORD mem_base       { printf("    dword"); }
+    ;
+
+mem_op
+    : mem8_op | mem16_op | mem32_op
+    | mem_base             { printf("    mem"); }
+    ;
+
+rm8_op  : reg8_op | mem8_op ;
+rm16_op : reg16_op | mem16_op ;
+rm32_op : reg32_op | mem32_op ;
 
 mem_base:
     LBRACK mem_addr RBRACK
