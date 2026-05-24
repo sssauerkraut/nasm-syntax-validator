@@ -12,7 +12,6 @@
 [ \t]+               { /* ignore */ }
 "\n"                 { return EOL; }
 
-mov|MOV              { return MOV; }
 add|ADD              { return ADD; }
 inc|INC              { return INC; }
 adc|ADC              { return ADC; }
@@ -150,6 +149,9 @@ fcomp|FCOMP          { return FCOMP; }
 ud0|UD0              { return UD0; }
 ud1|UD1              { return UD1; }
 ud2b|UD2B            { return UD2B; }
+monitor|MONITOR      { return MONITOR; }
+monitorx|MONITORX    { return MONITORX; }
+lea|LEA    { return LEA; }
 
 movzx|MOVZX          { return MOVZX; }
 movsx|MOVSX          { return MOVSX; }
@@ -208,6 +210,7 @@ movsb|MOVSB          { return ZOP_MOVS; }
 movsw|MOVSW          { return ZOP_MOVS; }
 movsd|MOVSD          { return ZOP_MOVS; }
 movsq|MOVSQ          { return ZOP_MOVSQ; }
+mov|MOV              { return MOV;}
 
 cmpsb|CMPSB          { return ZOP_CMPS; }
 cmpsw|CMPSW          { return ZOP_CMPS; }
@@ -276,6 +279,7 @@ ptr|PTR              { return PTR; }
 "]"                  { return RBRACK; }
 "+"                  { return PLUS; }
 "-"                  { return MINUS; }
+"*"                  { return MULI; }
 
 packssdw|PACKSSDW|packsswb|PACKSSWB|packuswb|PACKUSWB|paddb|PADDB|paddd|PADDD|paddsb|PADDSB|paddsiw|PADDSIW|paddsw|PADDSW|paddusb|PADDUSB|paddusw|PADDUSW|paddw|PADDW|pand|PAND|pandn|PANDN|paveb|PAVEB|pavgusb|PAVGUSB|pcmpeqb|PCMPEQB|pcmpeqd|PCMPEQD|pcmpeqw|PCMPEQW|pcmpgtb|PCMPGTB|pcmpgtd|PCMPGTD|pcmpgtw|PCMPGTW|pf2id|PF2ID|pfacc|PFACC|pfadd|PFADD|pfcmpeq|PFCMPEQ|pfcmpge|PFCMPGE|pfcmpgt|PFCMPGT|pfmax|PFMAX|pfmin|PFMIN|pfmul|PFMUL|pfrcp|PFRCP|pfrcpit1|PFRCPIT1|pfrcpit2|PFRCPIT2|pfrsqit1|PFRSQIT1|pfrsqrt|PFRSQRT|pfsub|PFSUB|pfsubr|PFSUBR|pi2fd|PI2FD|pmaddwd|PMADDWD|pmagw|PMAGW|pmulhriw|PMULHRIW|pmulhrwa|PMULHRWA|pmulhrwc|PMULHRWC|pmulhw|PMULHW|pmullw|PMULLW|psubb|PSUBB|psubd|PSUBD|psubsb|PSUBSB|psubsiw|PSUBSIW|psubsw|PSUBSW|psubusb|PSUBUSB|psubusw|PSUBUSW|psubw|PSUBW|punpckhbw|PUNPCKHBW|punpckhdq|PUNPCKHDQ|punpckhwd|PUNPCKHWD|punpcklbw|PUNPCKLBW|punpckldq|PUNPCKLDQ|punpcklwd|PUNPCKLWD|por|POR|pxor|PXOR { yylval.str = strdup(yytext); return MMXOP; }
 
@@ -324,14 +328,13 @@ invpcid|INVPCID        { return INVPCID; }
 invlpga|INVLPGA        { return INVLPGA; }
 jmp|JMP                { return JMP; }
 jmpe|JMPE              { return JMPE; }
-monitor|MONITOR        { return MONITOR; }
-monitorx|MONITORX      { return MONITORX; }
 cpu_read|CPU_READ      { return CPU_READ; }
 cpu_write|CPU_WRITE    { return CPU_WRITE; }
 femms|FEMMS            { return FEMMS; }
 loadall|LOADALL        { return LOADALL; }
 loadall286|LOADALL286  { return LOADALL286; }
 xmmword|XMMWORD|oword|OWORD { return XMMWORD; }
+
 
 cmova|CMOVA|cmovae|CMOVAE|cmovb|CMOVB|cmovbe|CMOVBE|cmovc|CMOVC|cmove|CMOVE|cmovg|CMOVG|cmovge|CMOVGE|cmovl|CMOVL|cmovle|CMOVLE|cmovna|CMOVNA|cmovnae|CMOVNAE|cmovnb|CMOVNB|cmovnbe|CMOVNBE|cmovnc|CMOVNC|cmovne|CMOVNE|cmovng|CMOVNG|cmovnge|CMOVNGE|cmovnl|CMOVNL|cmovnle|CMOVNLE|cmovno|CMOVNO|cmovnp|CMOVNP|cmovns|CMOVNS|cmovnz|CMOVNZ|cmovo|CMOVO|cmovp|CMOVP|cmovpe|CMOVPE|cmovpo|CMOVPO|cmovs|CMOVS|cmovz|CMOVZ { yylval.str = strdup(yytext); return CMOVCC; }
 
