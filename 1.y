@@ -14,7 +14,7 @@ int yylex(void);
     char *str;
 }
 
-%token MOV ADD INC ADC SUB AND OR XOR CMP SBB NEG NOT MUL IDIV DIV
+%token MOV ADD INC ADC SUB AND OR XOR CMP SBB NEG NOT MUL IDIV DIV MULI
 %token SHL SHR SAR SAL ROL ROR RCL RCR
 %token BFS BSR BTC BTR BTS CMPXCHG CMPXCHG486 XADD POP PUSH AAD AAM
 
@@ -68,6 +68,8 @@ int yylex(void);
 %token XMMWORD
 %token NOP
 %token FXCH
+%token LEA
+
 %token <str> MMXOP MMXREG CMOVCC SETCC CREG DREG TREG
 
 
@@ -141,6 +143,7 @@ instruction:
   | test_instr
   | xchg_instr
   | setcc_instr
+  | lea_instr
   ;
 
 /* ============ ИНСТРУКЦИИ БЕЗ ОПЕРАНДОВ ============ */
@@ -790,20 +793,25 @@ mov_instr:
   | MOV rm8_op  COMMA imm_op
   | MOV rm16_op COMMA rm16_op
   | MOV rm16_op COMMA imm_op
+  | MOV rm16_op COMMA sreg_op
+  | MOV sreg_op COMMA rm16_op
   | MOV rm32_op COMMA rm32_op
   | MOV rm32_op COMMA imm_op
-  | MOV mem8_op COMMA sreg_op   
-  | MOV reg16_op COMMA sreg_op
-  | MOV reg32_op COMMA sreg_op
-  | MOV sreg_op COMMA mem_op
-  | MOV sreg_op COMMA reg16_op
-  | MOV sreg_op COMMA reg32_op
-  | MOV reg32_op COMMA creg_op
-  | MOV creg_op COMMA reg32_op
-  | MOV reg32_op COMMA dreg_op
-  | MOV dreg_op COMMA reg32_op
-  | MOV reg32_op COMMA treg_op
-  | MOV treg_op COMMA reg32_op
+  | MOV rm32_op COMMA sreg_op
+  | MOV sreg_op COMMA rm32_op
+  | MOV rm32_op COMMA creg_op
+  | MOV creg_op COMMA rm32_op
+  | MOV rm32_op COMMA dreg_op
+  | MOV dreg_op COMMA rm32_op
+  | MOV rm32_op COMMA treg_op
+  | MOV treg_op COMMA rm32_op
+  | MOV mem_base COMMA mem_base
+  | MOV mem_base COMMA rm16_op
+  | MOV mem_base COMMA rm32_op
+  | MOV mem_base COMMA rm8_op
+  | MOV rm32_op COMMA mem_base
+  | MOV rm16_op COMMA mem_base
+  | MOV rm8_op COMMA mem_base
   ;
 
 nop_instr:
@@ -857,6 +865,12 @@ setcc_instr:
     SETCC rm8_op { printf(" %s", $1); }
   ;
 
+lea_instr:
+    LEA reg16_op COMMA mem_op
+  | LEA reg32_op COMMA mem_op
+  | LEA reg16_op COMMA imm_op
+  | LEA reg32_op COMMA imm_op
+  ;
 /* ============ ОПЕРАНДЫ (ОПРЕДЕЛЕНИЯ) ============ */
 reg8_op:  REG8  { $$ = $1; printf("    reg8: %s", $1); };
 reg16_op: REG16 { $$ = $1; printf("    reg16: %s", $1); };
@@ -911,7 +925,10 @@ mem_base:
 mem_addr:
     ID                     { printf(" [%s]", $1); }
   | REG32                { printf(" [%s]", $1); }
+  | REG32 MULI NUMBER    { printf(" [%s*%d]", $1, $3); }
   | REG32 PLUS NUMBER    { printf(" [%s+%d]", $1, $3); }
+  | REG32 PLUS REG32    { printf(" [%s+%s]", $1, $3); }
+  | REG32 PLUS REG32 MULI NUMBER     { printf(" [%s+%s*%d]", $1, $3, $5); }
   | REG32 MINUS NUMBER   { printf(" [%s-%d]", $1, $3); }
   | NUMBER { printf(" [%d]", $1); }
   ;
